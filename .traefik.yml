@@ -1,0 +1,8 @@
+displayName: JWT Middleware
+type: middleware
+import: github.com/muhgumus/traefik-token-middleware
+summary: 'Verify JWT Token in auth header and injects decoded payload in header'
+
+testData:
+  encodedHeader:
+    - "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImp0aSI6ImY1NzVlNDZlLTU2ZDQtNGU0Zi04MDQ1LTcwMWJmYjViM2RmNCIsImlhdCI6MTYwODE1MDg1MSwiZXhwIjoxNjA4MTU0NDUxfQ.g_XGqgyR-vo1DZzHiw-HwPQJpJYSsYMvI9rdeMRJEg8"
