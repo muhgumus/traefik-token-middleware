@@ -7,8 +7,8 @@
 Start with command
 ```yaml
 command:
-  - "--experimental.plugins.traefik-token-middleware.modulename=github.com/muhgumus/traefik-token-middleware"
-  - "--experimental.plugins.traefik-token-middleware.version=v0.1.2"
+  - --experimental.plugins.traefik-token-middleware.modulename=github.com/muhgumus/traefik-token-middleware
+  - --experimental.plugins.traefik-token-middleware.version=v0.1.2
 ```
 
 Activate plugin in your config  
