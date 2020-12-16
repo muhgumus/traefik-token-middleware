@@ -1,6 +1,6 @@
-# JWT Middleware
+#  Traefik Token Middleware
 
-JWT Token Middleware for Query parameters 
+ Traefik JWT Token Middleware for Query parameters 
 
 ## Configuration
 
@@ -8,7 +8,7 @@ Start with command
 ```yaml
 command:
   - "--experimental.plugins.traefik-token-middleware.modulename=github.com/muhgumus/traefik-token-middleware"
-  - "--experimental.plugins.traefik-token-middleware.version=v0.1.0"
+  - "--experimental.plugins.traefik-token-middleware.version=v0.1.1"
 ```
 
 Activate plugin in your config  
@@ -24,5 +24,4 @@ spec:
       queryParam: token
       proxyHeadernmae: injectPayload
       secret: secret
-
 ```
