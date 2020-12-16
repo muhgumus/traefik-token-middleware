@@ -14,7 +14,6 @@ import (
 type Config struct {
 	Secret string `json:"secret,omitempty"`
 	QueryParam string `json:"queryParam,omitempty"`
-	ProxyHeaderName string `json:"proxyHeaderName,omitempty"`
 }
 
 
@@ -27,7 +26,6 @@ type JWT struct {
 	name		string
 	secret		string
 	queryParam	string
-	proxyHeaderName string
 }
 
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
@@ -37,9 +35,6 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 	}
 	if len(config.QueryParam) == 0 {
 		config.QueryParam = "queryParam"
-	}
-	if len(config.ProxyHeaderName) == 0 {
-		config.ProxyHeaderName = "injectedPayload"
 	}
 
 	return &JWT{
@@ -80,8 +75,6 @@ func (j *JWT) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 		// TODO Check for outside of ASCII range characters
 		
-		// Inject header as proxypayload or configured name
-		//req.Header.Add(j.proxyHeaderName, payload)
 		fmt.Println(payload)
 		j.next.ServeHTTP(res, req)
 	} else {
@@ -117,11 +110,6 @@ func verifyJWT(token Token, secret string) (bool, error) {
 
 // preprocessJWT Takes the request header string, strips prefix and whitespaces and returns a Token
 func preprocessJWT(queryToken string) (Token, error) {
-	// fmt.Println("==> [processHeader] SplitAfter")
-	// structuredHeader := strings.SplitAfter(reqHeader, "Bearer ")[1]
-	//cleanedString := strings.TrimPrefix(reqHeader, prefix)
-	//cleanedString = strings.TrimSpace(queryToken)
-	// fmt.Println("<== [processHeader] SplitAfter", cleanedString)
 
 	var token Token
 
