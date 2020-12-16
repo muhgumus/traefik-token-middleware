@@ -1,7 +1,7 @@
-displayName: JWT Middleware
+displayName: Traefik Token Middleware
 type: middleware
 import: github.com/muhgumus/traefik-token-middleware
-summary: 'Verify JWT Token in auth header and injects decoded payload in header'
+summary: 'Verify JWT Token from query Param'
 
 testData:
   encodedHeader:
