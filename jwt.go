@@ -81,8 +81,8 @@ func (j *JWT) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		// TODO Check for outside of ASCII range characters
 		
 		// Inject header as proxypayload or configured name
-		req.Header.Add(j.proxyHeaderName, payload)
-		fmt.Println(req.Header)
+		//req.Header.Add(j.proxyHeaderName, payload)
+		fmt.Println(payload)
 		j.next.ServeHTTP(res, req)
 	} else {
 		http.Error(res, "Not allowed", http.StatusUnauthorized)
