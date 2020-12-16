@@ -1,4 +1,4 @@
-package jwt_middleware
+package traefik_token_middleware
 
 import (
 	"context"
