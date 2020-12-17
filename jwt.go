@@ -99,7 +99,7 @@ func (j *JWT) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		
 
 		if(isExpire(payload.exp)){
-			http.Error(res, "Token Expired"+string(payload.exp), http.StatusBadRequest)
+			http.Error(res, "Token Expired -> "+string(payload.exp), http.StatusBadRequest)
 			return
 		} 
 		
