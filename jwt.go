@@ -108,20 +108,20 @@ func (j *JWT) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		xType := fmt.Sprintf("%T", payload.Exp)
 		fmt.Println(xType)
 
-			http.Error(res, "Token Expired -> "+ xType + " exp :"+string(payload.Exp)+ " roles :"+ payload.Roles+ " tenantlİst :"+ string(payload.TenantList), http.StatusBadRequest)
+			http.Error(res, "Token Expired", http.StatusBadRequest)
 			return
 		} 
 		
 
-		if len(j.roles) == 0 {
-			if(strings.Contains(j.roles, payload.Roles)){
+		if len(j.roles) > 0 {
+			if !strings.Contains(j.roles, payload.Roles){
 				http.Error(res, "Role Not Permitted", http.StatusBadRequest)
 			return
 			}
 		}
 
-		if len(queryTenantId) == 0 {
-			if(strings.Contains(payload.TenantList, queryTenantId)){
+		if len(queryTenantId) > 0 {
+			if !strings.Contains(payload.TenantList, queryTenantId){
 				http.Error(res, "Tenant Not Permitted", http.StatusBadRequest)
 			return
 			}
