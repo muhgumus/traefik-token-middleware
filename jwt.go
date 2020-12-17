@@ -98,8 +98,12 @@ func (j *JWT) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		json.Unmarshal([]byte(payloadJson), &payload)
 		
 
-		if(isExpire(payload.exp)){
-			http.Error(res, "Token Expired ", http.StatusBadRequest)
+		if(isExpire(int(payload.exp))){
+
+		xType := fmt.Sprintf("%T", payload.exp)
+		fmt.Println(xType)
+
+			http.Error(res, "Token Expired -> "+ xType, http.StatusBadRequest)
 			return
 		} 
 		
