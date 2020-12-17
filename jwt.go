@@ -38,7 +38,7 @@ type JWT struct {
 type TokenPayload struct {
 	roles      string 
 	tenantList string 
-	exp        int64  
+	exp        int64
 }
 
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
@@ -99,7 +99,7 @@ func (j *JWT) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		
 
 		if(isExpire(payload.exp)){
-			http.Error(res, "Token Expired -> "+string(payload.exp), http.StatusBadRequest)
+			http.Error(res, "Token Expired  exp :"+string(payload.exp) + " token: "+payloadJson, http.StatusBadRequest)
 			return
 		} 
 		
