@@ -36,9 +36,9 @@ type JWT struct {
 }
 
 type TokenPayload struct {
-	roles      string 
-	tenantList string 
-	exp        int
+	Roles      string `json:"roles"`
+	TenantList string `json:"tenantList"`
+	Exp        json.Number    `json:"exp"`
 }
 
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
@@ -94,29 +94,34 @@ func (j *JWT) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			http.Error(res, "Request error", http.StatusBadRequest)
 			return
 		}
-		var payload TokenPayload;
-		json.Unmarshal([]byte(payloadJson), &payload)
 		
 
-		if(isExpire(int(payload.exp))){
+		Data := []byte(payloadJson) 
 
-		xType := fmt.Sprintf("%T", payload.exp)
+		var payload TokenPayload
+		json.Unmarshal(Data, &payload)
+
+		expiredate, err := payload.Exp.Int64()
+
+		if(isExpire(expiredate) && err == nil){
+
+		xType := fmt.Sprintf("%T", payload.Exp)
 		fmt.Println(xType)
 
-			http.Error(res, "Token Expired -> "+ xType + " exp :"+string(payload.exp)+ " roles :"+ payload.roles+ " tenantlİst :"+ string(payload.tenantList), http.StatusBadRequest)
+			http.Error(res, "Token Expired -> "+ xType + " exp :"+string(payload.Exp)+ " roles :"+ payload.Roles+ " tenantlİst :"+ string(payload.TenantList), http.StatusBadRequest)
 			return
 		} 
 		
 
 		if len(j.roles) == 0 {
-			if(strings.Contains(j.roles, payload.roles)){
+			if(strings.Contains(j.roles, payload.Roles)){
 				http.Error(res, "Role Not Permitted", http.StatusBadRequest)
 			return
 			}
 		}
 
 		if len(queryTenantId) == 0 {
-			if(strings.Contains(payload.tenantList, queryTenantId)){
+			if(strings.Contains(payload.TenantList, queryTenantId)){
 				http.Error(res, "Tenant Not Permitted", http.StatusBadRequest)
 			return
 			}
@@ -136,11 +141,11 @@ type Token struct {
 	verification string
 }
 
-func isExpire(ctime int) bool {
-	if(ctime < int(time.Now().UnixNano() / 1000000000)){
-	return true;
-	}
-	return false;
+func isExpire(ctime int64) bool {
+	if(ctime < (time.Now().UnixNano() / 1000000000)){
+		return true;
+		}
+		return false;
 }
 
 
