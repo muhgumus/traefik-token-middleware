@@ -103,7 +103,7 @@ func (j *JWT) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		xType := fmt.Sprintf("%T", payload.exp)
 		fmt.Println(xType)
 
-			http.Error(res, "Token Expired -> "+ xType, http.StatusBadRequest)
+			http.Error(res, "Token Expired -> "+ xType + " exp :"+string(payload.exp)+ " roles :"+ payload.roles+ " tenantlİst :"+ string(payload.tenantList), http.StatusBadRequest)
 			return
 		} 
 		
