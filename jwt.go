@@ -5,16 +5,21 @@ import (
 	"fmt"
 	"strings"
 	"net/http"
-
+	"time"
 	"encoding/base64"
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/json"
 )
 
 type Config struct {
 	Secret string `json:"secret,omitempty"`
-	QueryParam string `json:"queryParam,omitempty"`
+	QueryTokenParam string `json:"queryTokenParam,omitempty"`
+	QueryTenantIdParam string `json:"queryTenantIdParam,omitempty"`
+	Roles string `json:"roles,omitempty"`
 }
+
+
 
 
 func CreateConfig() *Config {
@@ -25,7 +30,15 @@ type JWT struct {
 	next		http.Handler
 	name		string
 	secret		string
-	queryParam	string
+	queryTokenParam	string
+	queryTenantIdParam	string
+	roles string
+}
+
+type TokenPayload struct {
+	roles      string 
+	tenantList string 
+	exp        int64  
 }
 
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
@@ -33,22 +46,31 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 	if len(config.Secret) == 0 {
 		config.Secret = "secret"
 	}
-	if len(config.QueryParam) == 0 {
-		config.QueryParam = "queryParam"
+	if len(config.QueryTokenParam) == 0 {
+		config.QueryTokenParam = "queryTokenParam"
+	}
+	if len(config.QueryTenantIdParam) == 0 {
+		config.QueryTenantIdParam = "queryTenantIdParam"
+	}
+	if len(config.Roles) == 0 {
+		config.Roles = "roles"
 	}
 
 	return &JWT{
 		next:		next,
 		name:		name,
 		secret:	config.Secret,
-		queryParam: config.QueryParam,
+		queryTokenParam: config.QueryTokenParam,
+		queryTenantIdParam: config.QueryTenantIdParam,
+		roles: config.Roles,
 	}, nil
 }
 
 func (j *JWT) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	queryToken := req.URL.Query().Get(j.queryParam)
+	queryToken := req.URL.Query().Get(j.queryTokenParam)
+	queryTenantId := req.URL.Query().Get(j.queryTenantIdParam)
 
-	if len(queryToken) == 0 {
+	if len(j.queryTokenParam) == 0 {
 		http.Error(res, "Request error", http.StatusBadRequest)
 		return
 	}
@@ -67,13 +89,34 @@ func (j *JWT) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	if (verified) {
 		// If true decode payload
-		payload, decodeErr := decodeBase64(token.payload)
+		payloadJson, decodeErr := decodeBase64(token.payload)
 		if decodeErr != nil {
 			http.Error(res, "Request error", http.StatusBadRequest)
 			return
 		}
+		var payload TokenPayload;
+		json.Unmarshal([]byte(payloadJson), &payload)
+		
 
-		// TODO Check for outside of ASCII range characters
+		if(isExpire(payload.exp)){
+			http.Error(res, "Token Expired", http.StatusBadRequest)
+			return
+		} 
+		
+
+		if len(j.roles) == 0 {
+			if(strings.Contains(j.roles, payload.roles)){
+				http.Error(res, "Role Not Permitted", http.StatusBadRequest)
+			return
+			}
+		}
+
+		if len(queryTenantId) == 0 {
+			if(strings.Contains(payload.tenantList, queryTenantId)){
+				http.Error(res, "Tenant Not Permitted", http.StatusBadRequest)
+			return
+			}
+		}
 		
 		fmt.Println(payload)
 		j.next.ServeHTTP(res, req)
@@ -88,6 +131,14 @@ type Token struct {
 	payload string
 	verification string
 }
+
+func isExpire(ctime int64) bool {
+	if(ctime < (time.Now().UnixNano() / int64(time.Millisecond) / 1000)){
+	return true;
+	}
+	return false;
+}
+
 
 // verifyJWT Verifies jwt token with secret
 func verifyJWT(token Token, secret string) (bool, error) {
